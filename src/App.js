@@ -1,11 +1,30 @@
 import './App.css';
 import Navbar from './Components/Navbar/Navbar';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ShopCategory from './Pages/ShopCategory';
+import Product from './Pages/Product';
+import Cart from './Pages/Cart';
+import LoginSignup from './Pages/LoginSignup';
 
 function App() {
   return (
     <div>
-      <Navbar />
-    </div>
+      <BrowserRouter>
+        <Navbar>
+          <Routes>
+            <Route path='/' element={<shop />} />
+            <Route path='/mens' element={< ShopCategory category="men" />} />
+            <Route path='/womens' element={< ShopCategory category="women" />} />
+            <Route path='/kids' element={< ShopCategory category="kid" />} />
+            <Route>
+              <Route path=':productId' element={<Product />} />
+            </Route>
+            <Route path='/chrt' element={<Cart />} />
+            <Route path='/login' element={<LoginSignup />} />
+          </Routes >
+        </Navbar >
+      </BrowserRouter >
+    </div >
   );
 }
 
