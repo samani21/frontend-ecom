@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react'
-import axios, { all } from "axios";
+import axios from "axios";
 
 export const ShopContext = createContext(null);
 
@@ -16,11 +16,20 @@ const ShopContextProvider = (props) => {
     const [cartItems, setCartItems] = useState(getDefaultCart());
 
     useEffect(() => {
-        fetch("http://localhost:8000/product")
-            .then((response) => response.json())
-            .then((data) => {
-                setAll_Product(data.data)
+        axios.get("http://localhost:8000/product")
+            .then(res => {
+                const product = res.data.data;
+                setAll_Product(product);
+                console.log("asjbajsb", product);
+            })
+            .catch(error => {
+                console.log(error);
             });
+        // fetch("http://localhost:8000/product")
+        //     .then((response) => response.json())
+        //     .then((data) => {
+        //         setAll_Product(data.data)
+        //     });
     }, [])
 
     const addToCart = (itemId) => {
