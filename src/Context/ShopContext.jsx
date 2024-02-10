@@ -14,27 +14,38 @@ const getDefaultCart = () => {
 const ShopContextProvider = (props) => {
     const [all_product, setAll_Product] = useState([]);
     const [cartItems, setCartItems] = useState(getDefaultCart());
-
+    const [keranjang, setKeranjang] = useState([])
     useEffect(() => {
         axios.get("http://localhost:8000/product")
             .then(res => {
                 const product = res.data.data;
                 setAll_Product(product);
-                console.log("asjbajsb", product);
             })
             .catch(error => {
                 console.log(error);
             });
-        // fetch("http://localhost:8000/product")
-        //     .then((response) => response.json())
-        //     .then((data) => {
-        //         setAll_Product(data.data)
-        //     });
     }, [])
 
     const addToCart = (itemId) => {
         setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }))
-        console.log(cartItems);
+        console.log(itemId);
+        const formData = {
+            id_product: itemId,
+            id_user: localStorage.getItem('id')
+        }
+        console.log(formData)
+        const jsonData = JSON.stringify(formData);
+        axios.post("http://localhost:8000/keranjang/upload", jsonData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                console.log(response.data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     }
 
     const removeFromCart = (itemId) => {
@@ -55,12 +66,17 @@ const ShopContextProvider = (props) => {
 
     const getTotalCartItems = () => {
         let totalItem = 0;
-        for (const item in cartItems) {
-            if (cartItems[item] > 0) {
-                totalItem += cartItems[item];
-            }
-        }
-        return totalItem
+        const id = localStorage.getItem('id');
+        axios.get(`http://localhost:8000/keranjang/total/${id}`)
+            .then(res => {
+                const total = res.data.data;
+                setKeranjang(total);
+                console.log("asjbajsb", total);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        return keranjang
     }
 
     const contextValue = { getTotalCartItems, getTotalCartAmount, all_product, cartItems, addToCart, removeFromCart };

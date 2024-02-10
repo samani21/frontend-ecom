@@ -33,6 +33,7 @@ const LoginSignup = () => {
         if (responseData.access_token) {
             console.log(responseData);
             localStorage.setItem('auth-token', responseData.access_token)
+            localStorage.setItem('id', responseData.user.id)
             window.location.replace('/')
         } else {
             alert(responseData.message)
