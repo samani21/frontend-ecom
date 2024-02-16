@@ -14,7 +14,8 @@ const getDefaultCart = () => {
 const ShopContextProvider = (props) => {
     const [all_product, setAll_Product] = useState([]);
     const [cartItems, setCartItems] = useState(getDefaultCart());
-    const [keranjang, setKeranjang] = useState([])
+    const [keranjang, setKeranjang] = useState([]);
+
     useEffect(() => {
         axios.get("http://localhost:8000/product")
             .then(res => {
@@ -49,8 +50,21 @@ const ShopContextProvider = (props) => {
     }
 
     const removeFromCart = (itemId) => {
-        setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }))
-        console.log(cartItems);
+        // setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }))
+        // console.log(cartItems);
+        axios.post(`http://localhost:8000/keranjang/delete/${itemId}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                console.log(response.data);
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        window.location.reload();
     }
 
     const getTotalCartAmount = () => {
@@ -65,13 +79,13 @@ const ShopContextProvider = (props) => {
     }
 
     const getTotalCartItems = () => {
-        let totalItem = 0;
+        // let keranjang = 0;
         const id = localStorage.getItem('id');
         axios.get(`http://localhost:8000/keranjang/total/${id}`)
             .then(res => {
                 const total = res.data.data;
-                setKeranjang(total);
-                console.log("asjbajsb", total);
+                setKeranjang(total.total);
+                // setCartItems(total);
             })
             .catch(error => {
                 console.log(error);

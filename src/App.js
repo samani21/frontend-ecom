@@ -10,7 +10,7 @@ import Footer from './Components/Footer/Footer';
 import men_benner from './Components/Assets/banner_mens.png'
 import women_benner from './Components/Assets/banner_women.png'
 import kid_benner from './Components/Assets/banner_kids.png'
-
+import Suksess from './Pages/Success';
 function App() {
   return (
     <div>
@@ -18,6 +18,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path='/' element={<Shop />} />
+          <Route path='/success' element={<Suksess />} />
           <Route path='/mens' element={< ShopCategory banner={men_benner} category="men" />} />
           <Route path='/womens' element={< ShopCategory banner={women_benner} category="women" />} />
           <Route path='/kids' element={< ShopCategory banner={kid_benner} category="kid" />} />
