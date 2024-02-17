@@ -9,6 +9,8 @@ const CartItems = () => {
     const { getTotalCartAmount, all_product, cartItems, removeFromCart } = useContext(ShopContext);
     const [keranjang, setKeranjang] = useState([]);
     const [checkout, setCheckout] = useState([]);
+    const [tripay, setTripay] = useState([]);
+    const [status, setStatus] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,30 +34,71 @@ const CartItems = () => {
                 .catch(error => {
                     console.log(error);
                 });
+
+            axios.get(`http://localhost:8000/tripay`)
+                .then(res => {
+                    const tripay = res.data.data;
+                    setTripay(tripay);
+                    console.log("tripay", tripay);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+            axios.get(`http://localhost:8000/pembayaran/detail/${id}`)
+                .then(res => {
+                    const detail = res.data.data.status;
+                    setStatus(detail);
+                    console.log("detail", detail);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         }
         fetchInfo();
     }, []);
 
-    const handleCheckout = (checkout) => {
-        console.log("bayar", checkout);
+    const handleCheckout = async (method, checkout) => {
+        let responseData;
+        console.log("bayar", method);
         const formData = {
             id_user: localStorage.getItem('id'),
-            total: checkout
+            method: method
         }
         const jsonData = JSON.stringify(formData);
-        axios.post("http://localhost:8000/pembayaran/bayar", jsonData, {
+        await axios.post("http://localhost:8000/transaksi", jsonData, {
             headers: {
                 'Content-Type': 'application/json'
             }
         })
             .then(response => {
-                navigate('/success')
-                console.log(response.data);
+                responseData = response.data
+                // navigate('/success')
             })
             .catch(error => {
                 console.error('Error:', error);
             });
-        
+        if (responseData.success) {
+            console.log("refrence", responseData);
+            const formData1 = {
+                id_user: localStorage.getItem('id'),
+                total: checkout,
+                reference: responseData.data.reference
+            }
+            const jsonData = JSON.stringify(formData1);
+            await axios.post("http://localhost:8000/pembayaran/bayar", jsonData, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    responseData = response.data
+                    navigate('/success')
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
     }
 
     return (
@@ -98,7 +141,33 @@ const CartItems = () => {
                             <h3>${checkout}</h3>
                         </div>
                     </div>
-                    <button onClick={() => { handleCheckout(checkout) }}>PROCEED TO CHECKOUT</button>
+                    {/* <button onClick={() => { handleCheckout(checkout) }}>PROCEED TO CHECKOUT</button> */}
+                    <label className='modal-open modal-label' htmlFor='modal-open'>Checkout</label>
+                    <input type="radio" name='modal' id="modal-open" className='modal-radio' />
+                    <div className="modal">
+                        <label htmlFor="" className="modal-label overlay">
+                            <input type="radio" name='modal' className='modal-radio' />
+                        </label>
+                        <div className="content">
+                            <div className="top">
+                                <h2>Heading</h2>
+                                <label className="modal-label close-btn">
+                                    <input type="radio" name='modal' className='modal-radio' />
+                                </label>
+                            </div>
+                            <hr />
+                            <div>
+                                <h2>Total Biaya</h2>
+                                <h4>{checkout}</h4>
+                            </div>
+                            <hr />
+                            <div className='tripay'>
+                                {tripay.map((pay, index) => (
+                                    <img key={index} src={pay.icon_url} alt="" width={"150px"} onClick={() => { handleCheckout(pay.code, checkout) }} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="cartitems-promocode">
                     <p>If you have a promo code, enter it here</p>
